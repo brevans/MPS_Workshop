@@ -1,0 +1,101 @@
+#For Yale MPS sequencing workshop
+#by Ben Evans
+#v 0.1
+#some useful sites and tools in parsing through your data
+
+##formats##
+#fastQ (sequence paired with quality scores)
+#http://en.wikipedia.org/wiki/FASTQ_format
+
+#SAM/BAM (alignments)
+#http://samtools.sourceforge.net/samtools.shtml#5
+
+#VCF (variants)
+#http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41
+
+##getting software##
+#download to current directory
+wget http://www.mysite.com/magical_package.tgz
+#or
+curl http://www.mysite.com/magical_package.tgz
+
+#extract contents
+tar xzvf magical_package.tgz
+tar xzvf magical_package.tar.gz
+tar xjvf magical_package.tar.bz2
+
+#hopefully it's ready for you to use, if not...
+#try typing make in the directory you extracted if it has a file named "Makefile"
+make
+
+#copy your fancy new executable(s) to a place where you like to keep useful software
+#I like to keep mine in ~/bin
+cp magical_program ~/bin/
+
+#if you haven't already, tell bash where you keep your useful software
+#add this to the end of ~/.bashrc or ~/.bash_profile files, whichever exists on your system
+export PATH="~/bin/:$PATH"
+
+##Data Q/C##
+
+#fastQC
+#http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+#get an archive with your qc results for fastq1.fastq
+fastqc --noextract -t numcpus fastq1.fastq
+
+#fastx
+#install http://hannonlab.cshl.edu/fastx_toolkit/download.html
+#examples http://hannonlab.cshl.edu/fastx_toolkit/commandline.html
+#if you are using PHRED+33 encoded fastq, use -Q33
+fastq_quality_filter -Q33 -i fastq1.fastq -n 20 -p 80 -o quality_filtered.fastq
+
+##Mapping##
+
+#bowtie2
+#http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml
+#samtools
+#http://samtools.sourceforge.net/
+
+#build your index
+#name of reference fasta, name that you want to use in bowtie
+bowtie2-build tort_sptree.fasta tort_sptree
+
+#align your reads
+#pipeline: align -> convert to bam -> position sort bam (necessary for variant calling)
+#The --rg (read group) options are good practice as they specify inside your file information about your sample
+#more info in the full sam spec, page 3 http://samtools.sourceforge.net/SAMv1.pdf
+#They also are required if you decide to use GATK2 to variant call
+
+bowtie2 --local --rg-id sample1 --rg SM:sample1 --rg LB:amplicon_seq --rg PL:IONTORRENT -x path/to/tort_sptree -U sequences/fastq1.fastq | samtools view -Shu - | samtools sort  - sample1
+
+#index your new bam file
+samtools index sample1.bam
+
+#using samtools to view your alignment
+samtools tview sample1.bam path/to/tort_sptree.fasta
+
+##variant calling##
+
+#using samtools to variant call
+#remove the option "I" to get indel calls too
+#if you have more than one sample, simply list them each 
+samtools mpileup -Q 17 -IuDf path/to/tort_sptree.fasta sample1.bam | bcftools view -vcg - > sample1_raw.vcf
+
+##examining & filtering variants##
+#vcftools
+#http://sourceforge.net/projects/vcftools/files/
+#http://vcftools.sourceforge.net/options.html
+vcftools --vcf sample1_raw.vcf
+
+##converting formats##
+#other than stated above, you can sometimes interconvert formats with PGD spider
+#http://www.cmpg.unibe.ch/software/PGDSpider/index.htm
+#though be VERY careful and be sure to double check your output and the assumptions your next program will make about it!
+
+#some linux fun
+#convert all the bam files in the current directory back into fastq
+
+for s in $(ls *.bam)
+do
+    samtools view $s | awk '!/^@/ {print "@"$1"\n"$10"\n+\n"$11}' > ${s/%bam/fastq}
+done
