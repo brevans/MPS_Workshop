@@ -95,7 +95,7 @@ vcftools --vcf sample1_raw.vcf
 #some linux fun
 #convert all the bam files in the current directory back into fastq
 
-for s in $(ls *.bam)
+for s in *.bam
 do
     samtools view $s | awk '!/^@/ {print "@"$1"\n"$10"\n+\n"$11}' > ${s/%bam/fastq}
 done
