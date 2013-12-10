@@ -1,0 +1,16 @@
+#some examples of making your life easier in bash using the bashrc file:
+
+#extend my path and manpath
+export PATH=/home/ben/bin:/home/ben/ActivePerl-5.14/bin:$PATH
+export MANPATH=/home/ben/ActivePerl-5.14/site/man:/home/be59/ActivePerl-5.14/man:$MANPATH
+
+#custom blastdb location
+export BLASTDB=/home/be59/ref/blastdb:$BLASTDB
+
+#aliases
+alias emac='emacs -nw'
+alias ll='ls -lah --color'
+alias ls='ls --color'
+alias top='top -Mc'
+alias plink='plink --noweb'
+alias BDN='ssh be59@bulldogn.hpc.yale.edu'
