@@ -15,4 +15,4 @@ for record in fastq_file:
     #if the read is of sufficient average quality
     if avg_qual > qual_cutoff:
         #print it in fastq format
-        print record.format("fastq")
+        print(record.format("fastq"))
