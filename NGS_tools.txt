@@ -34,7 +34,7 @@ cp magical_program ~/bin/
 
 #if you haven't already, tell bash where you keep your useful software
 #add this to the end of ~/.bashrc or ~/.bash_profile files, whichever exists on your system
-export PATH="~/bin/:$PATH"
+export PATH="$HOME/bin/:$PATH"
 
 ##Data Q/C##
 
