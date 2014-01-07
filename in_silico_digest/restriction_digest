@@ -1,0 +1,6 @@
+/usr/bin/restrict \
+-sequence /home/ben/projects/galap_tort/ref_v7/lgv7.fasta \
+-sitelen 4 \
+-name yes \
+-enzymes 'NlaIII,MluCI' \
+-outfile ddRad_NlaIII_MluCI
