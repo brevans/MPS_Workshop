@@ -1,0 +1,11 @@
+PASS	Basic Statistics	AGO02.1.fq
+PASS	Per base sequence quality	AGO02.1.fq
+PASS	Per sequence quality scores	AGO02.1.fq
+FAIL	Per base sequence content	AGO02.1.fq
+FAIL	Per base GC content	AGO02.1.fq
+PASS	Per sequence GC content	AGO02.1.fq
+PASS	Per base N content	AGO02.1.fq
+PASS	Sequence Length Distribution	AGO02.1.fq
+WARN	Sequence Duplication Levels	AGO02.1.fq
+PASS	Overrepresented sequences	AGO02.1.fq
+FAIL	Kmer Content	AGO02.1.fq
