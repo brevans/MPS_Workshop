@@ -1,6 +1,6 @@
 #For Yale MPS sequencing workshop
 #by Ben Evans
-#v 0.1
+#v 0.2
 #some useful sites and tools in parsing through your data
 
 ##formats##
@@ -9,6 +9,7 @@
 
 #SAM/BAM (alignments)
 #http://samtools.sourceforge.net/samtools.shtml#5
+#http://genome.sph.umich.edu/wiki/SAM
 
 #VCF (variants)
 #http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41
@@ -78,8 +79,18 @@ samtools tview sample1.bam path/to/tort_sptree.fasta
 
 #using samtools to variant call
 #remove the option "I" to get indel calls too
-#if you have more than one sample, simply list them each 
+#if you have more than one sample, simply list them 
 samtools mpileup -Q 17 -IuDf path/to/tort_sptree.fasta sample1.bam | bcftools view -vcg - > sample1_raw.vcf
+
+#GATK2 variant calling
+#prepare your reference
+#http://gatkforums.broadinstitute.org/discussion/1601/how-can-i-prepare-a-fasta-file-to-use-as-reference
+#read groups are REQUIRED in your alignments
+java -jar CreateSequenceDictionary.jar R=ref.fasta O=ref.dict
+samtools faidx ref.fasta
+
+#http://www.broadinstitute.org/gatk/gatkdocs/org_broadinstitute_sting_gatk_walkers_genotyper_UnifiedGenotyper.html
+
 
 ##examining & filtering variants##
 #vcftools
@@ -98,4 +109,12 @@ vcftools --vcf sample1_raw.vcf
 for s in *.bam
 do
     samtools view $s | awk '!/^@/ {print "@"$1"\n"$10"\n+\n"$11}' > ${s/%bam/fastq}
+done
+
+#bash string replacement
+#replace .fq with _trimmed.fq to maintain original files
+#${variable/from/to}
+for f in *.fq
+do
+	fastx_trimmer -l 71 -i $f > ${f/.fq/_trimmed.fq}
 done
